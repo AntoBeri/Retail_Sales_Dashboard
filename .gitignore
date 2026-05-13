@@ -10,7 +10,7 @@ env/
 # Jupyter
 .ipynb_checkpoints/
 
-# Data - raw files (can be large, and Kaggle has its own source)
+# Data - raw files
 data/raw/
 *.csv
 *.xlsx
