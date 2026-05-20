@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -59,8 +60,10 @@ st.markdown("""
 # Load data
 @st.cache_data
 def load_data():
-    df = pd.read_csv('../data/clean/retail_sales_dataset_clean.csv')
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    df =pd.read_csv(os.path.join(BASE_DIR, '..', 'data', 'clean', 'retail_sales_dataset_clean.csv'))
     df['transaction_date'] = pd.to_datetime(df['transaction_date'])
+
     return df
 
 df = load_data()
