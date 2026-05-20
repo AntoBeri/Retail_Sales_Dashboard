@@ -219,7 +219,7 @@ with col_right:
     st.markdown("**Revenue by quarter**")
     st.plotly_chart(fig_bar, use_container_width=True)
 
-    # Section 2: Product performance
+# Product performance
 st.markdown('<div class="section-title">Product performance</div>', unsafe_allow_html=True)
 
 col_left, col_right = st.columns([1, 1])
@@ -327,3 +327,172 @@ with col_b:
     )
     st.markdown("**Total revenue by sales tier**")
     st.plotly_chart(fig_tier_rev, use_container_width=True)
+
+# Customer insights
+st.markdown('<div class="section-title">Customer insights</div>', unsafe_allow_html=True)
+
+col_left, col_right = st.columns([1, 1])
+
+with col_left:
+    seg_data = (
+        filtered.groupby('customer_segment')['sales_amount']
+        .mean()
+        .reindex(['New', 'Returning', 'Loyal', 'VIP'])
+        .reset_index()
+    )
+    fig_seg = px.bar(
+        seg_data,
+        x='customer_segment',
+        y='sales_amount',
+        labels={'sales_amount': 'Avg order value ($)', 'customer_segment': ''},
+        color_discrete_sequence=['#0d9488']
+    )
+    fig_seg.update_layout(
+        plot_bgcolor='white', paper_bgcolor='white',
+        margin=dict(l=0, r=0, t=10, b=0),
+        yaxis=dict(gridcolor='#f0f0f0', tickprefix='$', tickformat=',.2f'),
+        xaxis=dict(gridcolor='#f0f0f0'),
+    )
+    st.markdown("**Avg order value by customer segment**")
+    st.plotly_chart(fig_seg, use_container_width=True)
+
+with col_right:
+    age_gender = (
+        filtered.groupby(['customer_age_group', 'customer_gender'])['sales_amount']
+        .count()
+        .reset_index()
+        .rename(columns={'sales_amount': 'transactions'})
+    )
+    fig_age = px.bar(
+        age_gender,
+        x='customer_age_group',
+        y='transactions',
+        color='customer_gender',
+        barmode='group',
+        labels={'transactions': 'Transactions', 'customer_age_group': '', 'customer_gender': ''},
+        color_discrete_map={'Male': '#0d9488', 'Female': '#94d1ce', 'Other': '#e2f5f3'}
+    )
+    fig_age.update_layout(
+        plot_bgcolor='white', paper_bgcolor='white',
+        margin=dict(l=0, r=0, t=10, b=0),
+        yaxis=dict(gridcolor='#f0f0f0'),
+        xaxis=dict(gridcolor='#f0f0f0'),
+        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1)
+    )
+    st.markdown("**Transactions by age group and gender**")
+    st.plotly_chart(fig_age, use_container_width=True)
+
+# Channel & payment
+st.markdown('<div class="section-title">Channel & payment</div>', unsafe_allow_html=True)
+
+col_left, col_right = st.columns([1, 1])
+
+with col_left:
+    channel_data = (
+        filtered.groupby('sales_channel')['sales_amount']
+        .sum()
+        .reset_index()
+    )
+    fig_channel = px.pie(
+        channel_data,
+        names='sales_channel',
+        values='sales_amount',
+        hole=0.5,
+        color_discrete_sequence=['#0d9488', '#94d1ce', '#d1f0ed']
+    )
+    fig_channel.update_layout(
+        paper_bgcolor='white',
+        margin=dict(l=0, r=0, t=10, b=0),
+        legend=dict(orientation='h', yanchor='bottom', y=-0.2, xanchor='center', x=0.5)
+    )
+    fig_channel.update_traces(textposition='inside', textinfo='percent+label')
+    st.markdown("**Revenue share by sales channel**")
+    st.plotly_chart(fig_channel, use_container_width=True)
+
+with col_right:
+    payment_data = (
+        filtered.groupby('payment_method')['sales_amount']
+        .sum()
+        .reset_index()
+        .sort_values('sales_amount', ascending=True)
+    )
+    fig_pay = px.bar(
+        payment_data,
+        x='sales_amount',
+        y='payment_method',
+        orientation='h',
+        labels={'sales_amount': 'Revenue ($)', 'payment_method': ''},
+        color_discrete_sequence=['#0d9488']
+    )
+    fig_pay.update_layout(
+        plot_bgcolor='white', paper_bgcolor='white',
+        margin=dict(l=0, r=0, t=10, b=0),
+        xaxis=dict(gridcolor='#f0f0f0', tickprefix='$', tickformat=',.0f'),
+        yaxis=dict(gridcolor='#f0f0f0'),
+    )
+    st.markdown("**Revenue by payment method**")
+    st.plotly_chart(fig_pay, use_container_width=True)
+
+# Discount analysis
+st.markdown('<div class="section-title">Discount analysis</div>', unsafe_allow_html=True)
+
+col_left, col_right = st.columns([1, 1])
+
+with col_left:
+    disc_compare = (
+        filtered.groupby('has_discount')['sales_amount']
+        .mean()
+        .reset_index()
+    )
+    disc_compare['label'] = disc_compare['has_discount'].map({True: 'With discount', False: 'No discount'})
+
+    fig_disc = px.bar(
+        disc_compare,
+        x='label',
+        y='sales_amount',
+        labels={'sales_amount': 'Avg order value ($)', 'label': ''},
+        color_discrete_sequence=['#0d9488', '#94d1ce'],
+        color='label'
+    )
+    fig_disc.update_layout(
+        plot_bgcolor='white', paper_bgcolor='white',
+        margin=dict(l=0, r=0, t=10, b=0),
+        yaxis=dict(gridcolor='#f0f0f0', tickprefix='$', tickformat=',.2f'),
+        xaxis=dict(gridcolor='#f0f0f0'),
+        showlegend=False
+    )
+    st.markdown("**Avg order value — discounted vs full price**")
+    st.plotly_chart(fig_disc, use_container_width=True)
+
+with col_right:
+    seg_disc = (
+        filtered.groupby('customer_segment')['has_discount']
+        .mean()
+        .mul(100)
+        .reindex(['New', 'Returning', 'Loyal', 'VIP'])
+        .reset_index()
+    )
+    fig_seg_disc = px.bar(
+        seg_disc,
+        x='customer_segment',
+        y='has_discount',
+        labels={'has_discount': 'Discount rate (%)', 'customer_segment': ''},
+        color_discrete_sequence=['#94d1ce']
+    )
+    fig_seg_disc.update_layout(
+        plot_bgcolor='white', paper_bgcolor='white',
+        margin=dict(l=0, r=0, t=10, b=0),
+        yaxis=dict(gridcolor='#f0f0f0', ticksuffix='%'),
+        xaxis=dict(gridcolor='#f0f0f0'),
+    )
+    st.markdown("**Discount rate by customer segment**")
+    st.plotly_chart(fig_seg_disc, use_container_width=True)
+
+# Footer
+st.markdown("---")
+st.markdown(
+    "<p style='text-align:center; color:#9ca3af; font-size:12px;'>"
+    "Retail Sales Dashboard · Built with Python & Streamlit · Data: 2024–2025"
+    "</p>",
+    unsafe_allow_html=True
+)
