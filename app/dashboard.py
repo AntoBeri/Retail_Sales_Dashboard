@@ -218,3 +218,112 @@ with col_right:
 
     st.markdown("**Revenue by quarter**")
     st.plotly_chart(fig_bar, use_container_width=True)
+
+    # Section 2: Product performance
+st.markdown('<div class="section-title">Product performance</div>', unsafe_allow_html=True)
+
+col_left, col_right = st.columns([1, 1])
+
+with col_left:
+    # Top 10 categories by revenue
+    cat_revenue = (
+        filtered.groupby('category')['sales_amount']
+        .sum()
+        .reset_index()
+        .sort_values('sales_amount', ascending=True)
+        .tail(10)
+    )
+
+    fig_cat = px.bar(
+        cat_revenue,
+        x='sales_amount',
+        y='category',
+        orientation='h',
+        labels={'sales_amount': 'Revenue ($)', 'category': ''},
+        color_discrete_sequence=['#0d9488']
+    )
+    fig_cat.update_layout(
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        margin=dict(l=0, r=0, t=10, b=0),
+        xaxis=dict(gridcolor='#f0f0f0', tickprefix='$', tickformat=',.0f'),
+        yaxis=dict(gridcolor='#f0f0f0'),
+    )
+
+    st.markdown("**Top categories by revenue**")
+    st.plotly_chart(fig_cat, use_container_width=True)
+
+with col_right:
+    # Avg revenue per unit by category
+    pu_data = (
+        filtered.groupby('category')['revenue_per_unit']
+        .mean()
+        .reset_index()
+        .sort_values('revenue_per_unit', ascending=True)
+    )
+
+    fig_pu = px.bar(
+        pu_data,
+        x='revenue_per_unit',
+        y='category',
+        orientation='h',
+        labels={'revenue_per_unit': 'Avg revenue per unit ($)', 'category': ''},
+        color_discrete_sequence=['#94d1ce']
+    )
+    fig_pu.update_layout(
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        margin=dict(l=0, r=0, t=10, b=0),
+        xaxis=dict(gridcolor='#f0f0f0', tickprefix='$', tickformat=',.2f'),
+        yaxis=dict(gridcolor='#f0f0f0'),
+    )
+
+    st.markdown("**Avg revenue per unit by category**")
+    st.plotly_chart(fig_pu, use_container_width=True)
+
+# Sales tier distribution
+tier_order = ['Small', 'Medium', 'Large', 'Premium']
+tier_data = (
+    filtered.groupby('sales_tier')['sales_amount']
+    .agg(count='count', total='sum')
+    .reindex(tier_order)
+    .reset_index()
+)
+
+col_a, col_b = st.columns([1, 1])
+
+with col_a:
+    fig_tier_count = px.bar(
+        tier_data,
+        x='sales_tier',
+        y='count',
+        labels={'count': 'Number of transactions', 'sales_tier': ''},
+        color_discrete_sequence=['#0d9488']
+    )
+    fig_tier_count.update_layout(
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        margin=dict(l=0, r=0, t=10, b=0),
+        yaxis=dict(gridcolor='#f0f0f0'),
+        xaxis=dict(gridcolor='#f0f0f0'),
+    )
+    st.markdown("**Transaction count by sales tier**")
+    st.plotly_chart(fig_tier_count, use_container_width=True)
+
+with col_b:
+    fig_tier_rev = px.bar(
+        tier_data,
+        x='sales_tier',
+        y='total',
+        labels={'total': 'Total revenue ($)', 'sales_tier': ''},
+        color_discrete_sequence=['#94d1ce']
+    )
+    fig_tier_rev.update_layout(
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        margin=dict(l=0, r=0, t=10, b=0),
+        yaxis=dict(gridcolor='#f0f0f0', tickprefix='$', tickformat=',.0f'),
+        xaxis=dict(gridcolor='#f0f0f0'),
+    )
+    st.markdown("**Total revenue by sales tier**")
+    st.plotly_chart(fig_tier_rev, use_container_width=True)
