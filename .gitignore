@@ -12,6 +12,7 @@ env/
 
 # Data - raw files
 data/raw/
+!data/clean/retail_sales_clean.csv
 *.csv
 *.xlsx
 *.json
