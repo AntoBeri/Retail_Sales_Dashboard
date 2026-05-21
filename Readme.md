@@ -3,6 +3,7 @@
 An end-to-end data analytics project built on a 120,000-transaction retail dataset. Covering exploratory data analysis, data cleaning, feature engineering, and an interactive dashboard deployed to the web.
 
 **[Live dashboard →](https://retailsalesdashboard-mus2mks9jtflo9pmbwzycc.streamlit.app/)**
+![Dashboard preview](app_screenshot.png)
 
 ---
 
